@@ -20,6 +20,15 @@ public class Task {
         this.createdBy = createdBy;
     }
 
+    public Task(int id, String title, String description, String status, int assignedTo, int createdBy) {
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.assignedTo = assignedTo;
+        this.createdBy = createdBy;
+        this.id=id;
+    }
+
     public int getId() {
         return id;
     }
