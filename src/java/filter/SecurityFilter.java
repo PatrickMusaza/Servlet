@@ -22,7 +22,6 @@ public class SecurityFilter implements Filter {
                 request.getContextPath().length()
         );
 
-        System.out.println("Filter processing path: " + path);
         if (path.equals("/admin/dashboard")) {
             System.out.println("Allowing admin dashboard access");
         }

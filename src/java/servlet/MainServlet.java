@@ -43,8 +43,6 @@ public class MainServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         User currentUser = session != null ? (User) session.getAttribute("user") : null;
 
-        System.out.println("Requested path: " + request.getRequestURI());
-        
         try {
             // Handle dashboard requests first
             if (path.equals("/dashboard") || path.equals("/admin/dashboard") || path.equals("/user/dashboard")) {
