@@ -131,7 +131,7 @@ public class MainServlet extends HttpServlet {
                 break;
             case "/task/delete":
                 deleteTask(request, response, currentUser, dashboardPath);
-                break;
+                break;  
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
