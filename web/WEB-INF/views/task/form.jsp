@@ -70,7 +70,7 @@
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="${pageContext.request.contextPath}/${not empty redirect ? redirect : 'admin/dashboard'}" 
+                        <a href="${pageContext.request.contextPath}/${not empty redirect ? redirect : 'task/list'}" 
                            class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">
                             <c:choose>

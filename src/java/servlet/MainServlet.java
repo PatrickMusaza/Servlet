@@ -132,6 +132,9 @@ public class MainServlet extends HttpServlet {
             case "/task/list":
                 listTask(request, response, dashboardPath);
                 break;
+            case "/task/insert":
+                insertTask(request, response, currentUser, dashboardPath);
+                break;
             case "/task/update":
                 updateTask(request, response, currentUser, dashboardPath);
                 break;
@@ -159,6 +162,7 @@ public class MainServlet extends HttpServlet {
 
     private void showUserForm(HttpServletRequest request, HttpServletResponse response,
             User user, String action) throws ServletException, IOException {
+        List<User> users = userDao.selectAllUsers();
         request.setAttribute("user", user);
         request.setAttribute("action", action);
         request.getRequestDispatcher("/WEB-INF/views/user/form.jsp").forward(request, response);
@@ -175,14 +179,49 @@ public class MainServlet extends HttpServlet {
             throws SQLException, IOException, ServletException {
         List<User> users = userDao.selectAllUsers();
         request.setAttribute("users", users);
+
+        // Check for messages
+        String message = (String) request.getSession().getAttribute("message");
+        if (message != null) {
+            request.setAttribute("message", message);
+            request.getSession().removeAttribute("message");
+        }
+
         request.getRequestDispatcher("/WEB-INF/views/admin/user.jsp").forward(request, response);
     }
 
     private void insertUser(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException {
+        // Extract user data from request
         User newUser = extractUserFromRequest(request);
-        userDao.insertUser(newUser);
-        response.sendRedirect("list");
+
+        // Validate required fields
+        if (newUser.getUsername() == null || newUser.getUsername().isEmpty() ||
+                newUser.getPassword() == null || newUser.getPassword().isEmpty() ||
+                newUser.getEmail() == null || newUser.getEmail().isEmpty()) {
+
+            // Store error message and redirect back to form
+            request.getSession().setAttribute("error", "All fields are required");
+            response.sendRedirect(request.getContextPath() + "/user/new");
+            return;
+        }
+
+        // Check if username already exists
+        if (userDao.userExists(newUser.getUsername())) {
+            request.getSession().setAttribute("error", "Username already exists");
+            response.sendRedirect(request.getContextPath() + "/user/new");
+            return;
+        }
+
+        // Insert the user
+        boolean success = userDao.insertUser(newUser);
+
+        if (success) {
+            response.sendRedirect(request.getContextPath() + "/user/list");
+        } else {
+            request.getSession().setAttribute("error", "Failed to create user");
+            response.sendRedirect(request.getContextPath() + "/user/new");
+        }
     }
 
     private void updateUser(HttpServletRequest request, HttpServletResponse response)

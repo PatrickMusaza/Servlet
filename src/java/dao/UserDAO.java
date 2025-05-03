@@ -51,16 +51,26 @@ public class UserDAO {
         return user;
     }
 
-    public void insertUser(User user) throws SQLException {
-        try (Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USERS_SQL)) {
-            preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getPassword());
-            preparedStatement.setString(3, user.getEmail());
-            preparedStatement.setString(4, user.getRole());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            printSQLException(e);
+    public boolean userExists(String username) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    public boolean insertUser(User user) throws SQLException {
+        String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getPassword()); // Should be hashed in production
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getRole());
+            return stmt.executeUpdate() > 0;
         }
     }
 
@@ -161,21 +171,6 @@ public class UserDAO {
                 return rs.next();
             }
         }
-    }
-
-    public boolean userExists(String username) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
-
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-            }
-        }
-        return false;
     }
 
     public int selectUserCount() throws SQLException {
