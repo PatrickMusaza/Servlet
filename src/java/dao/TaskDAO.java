@@ -34,7 +34,7 @@ public class TaskDAO {
 
     public void insertTask(Task task) throws SQLException {
         try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TASKS_SQL)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TASKS_SQL)) {
             preparedStatement.setString(1, task.getTitle());
             preparedStatement.setString(2, task.getDescription());
             preparedStatement.setString(3, task.getStatus());
@@ -49,7 +49,7 @@ public class TaskDAO {
     public Task selectTask(int id) {
         Task task = null;
         try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TASK_BY_ID)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TASK_BY_ID)) {
             preparedStatement.setInt(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -70,7 +70,7 @@ public class TaskDAO {
     public List<Task> selectAllTasks() {
         List<Task> tasks = new ArrayList<>();
         try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_TASKS)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_TASKS)) {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -90,7 +90,7 @@ public class TaskDAO {
     public List<Task> selectUserTasks(int userId) {
         List<Task> tasks = new ArrayList<>();
         try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_TASKS)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_TASKS)) {
             preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -111,7 +111,7 @@ public class TaskDAO {
     public boolean deleteTask(int id) throws SQLException {
         boolean rowDeleted;
         try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_TASKS_SQL)) {
+                PreparedStatement statement = connection.prepareStatement(DELETE_TASKS_SQL)) {
             statement.setInt(1, id);
             rowDeleted = statement.executeUpdate() > 0;
         }
@@ -121,7 +121,7 @@ public class TaskDAO {
     public boolean updateTask(Task task) throws SQLException {
         boolean rowUpdated;
         try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_TASKS_SQL)) {
+                PreparedStatement statement = connection.prepareStatement(UPDATE_TASKS_SQL)) {
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
             statement.setString(3, task.getStatus());
@@ -146,5 +146,35 @@ public class TaskDAO {
                 }
             }
         }
+    }
+
+    public int selectTaskCompletedCount() {
+        int count = 0;
+        try (Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection
+                        .prepareStatement("SELECT COUNT(*) FROM tasks WHERE status = 'completed'")) {
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return count;
+    }
+
+    public int selectActiveCount() {
+        int count = 0;
+        try (Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection
+                        .prepareStatement("SELECT COUNT(*) FROM tasks WHERE not status = 'completed'")) {
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return count;
     }
 }

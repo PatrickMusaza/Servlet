@@ -74,8 +74,14 @@ public class MainServlet extends HttpServlet {
         if ("admin".equals(currentUser.getRole())) {
             List<User> users = userDao.selectAllUsers();
             List<Task> tasks = taskDao.selectAllTasks();
+            int userCount = userDao.selectUserCount();
+            int taskCompleted = taskDao.selectTaskCompletedCount();
+            int taskActive = taskDao.selectActiveCount();
             request.setAttribute("listUser", users);
-            request.setAttribute("listTask", tasks);
+            request.setAttribute("task", tasks);
+            request.setAttribute("userCount", userCount);
+            request.setAttribute("taskCompleted", taskCompleted);
+            request.setAttribute("taskActive", taskActive);
             request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
         } else {
             List<Task> tasks = taskDao.selectUserTasks(currentUser.getId());
@@ -123,15 +129,15 @@ public class MainServlet extends HttpServlet {
             case "/task/edit":
                 showEditTaskForm(request, response, currentUser);
                 break;
-            case "/task/insert":
-                insertTask(request, response, currentUser, dashboardPath);
+            case "/task/list":
+                listTask(request, response, dashboardPath);
                 break;
             case "/task/update":
                 updateTask(request, response, currentUser, dashboardPath);
                 break;
             case "/task/delete":
                 deleteTask(request, response, currentUser, dashboardPath);
-                break;  
+                break;
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -169,7 +175,7 @@ public class MainServlet extends HttpServlet {
             throws SQLException, IOException, ServletException {
         List<User> users = userDao.selectAllUsers();
         request.setAttribute("users", users);
-        request.getRequestDispatcher("/WEB-INF/views/user/list.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/admin/user.jsp").forward(request, response);
     }
 
     private void insertUser(HttpServletRequest request, HttpServletResponse response)
@@ -222,6 +228,13 @@ public class MainServlet extends HttpServlet {
         }
 
         showTaskForm(request, response, existingTask, "update");
+    }
+
+    private void listTask(HttpServletRequest request, HttpServletResponse response,
+            String redirectPath) throws SQLException, IOException, ServletException {
+        List<Task> tasks = taskDao.selectAllTasks();
+        request.setAttribute("tasks", tasks);
+        request.getRequestDispatcher("/WEB-INF/views/admin/task.jsp").forward(request, response);
     }
 
     private void insertTask(HttpServletRequest request, HttpServletResponse response,

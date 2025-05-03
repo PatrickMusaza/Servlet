@@ -6,7 +6,7 @@ prefix="c" %>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Dashboard | Task Manager</title>
+    <title>Task Management | Task Manager</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -35,11 +35,13 @@ prefix="c" %>
         margin-right: 10px;
         text-align: center;
       }
-      .card-stat {
-        transition: transform 0.3s;
-      }
-      .card-stat:hover {
-        transform: translateY(-5px);
+      .action-btn {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
     </style>
   </head>
@@ -52,7 +54,7 @@ prefix="c" %>
             <ul class="nav flex-column">
               <li class="nav-item">
                 <a
-                  class="nav-link active"
+                  class="nav-link"
                   href="${pageContext.request.contextPath}/admin/dashboard"
                 >
                   <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -60,7 +62,7 @@ prefix="c" %>
               </li>
               <li class="nav-item">
                 <a
-                  class="nav-link"
+                  class="nav-link active"
                   href="${pageContext.request.contextPath}/task/list"
                 >
                   <i class="fas fa-tasks"></i> Manage Tasks
@@ -83,98 +85,37 @@ prefix="c" %>
           <div
             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
           >
-            <h1 class="h2">
-              <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-            </h1>
+            <h1 class="h2"><i class="fas fa-tasks me-2"></i>Task Management</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-              <span class="navbar-text me-3">
-                Welcome, ${user.username}
-                <span class="badge bg-danger">Admin</span>
-              </span>
               <a
-                class="btn btn-sm btn-outline-secondary"
-                href="${pageContext.request.contextPath}/logout"
+                href="${pageContext.request.contextPath}/task/new"
+                class="btn btn-primary"
               >
-                <i class="fas fa-sign-out-alt"></i> Logout
+                <i class="fas fa-plus me-1"></i> New Task
               </a>
             </div>
           </div>
 
-          <!-- Stats Cards -->
-          <div class="row mb-4">
-            <div class="col-md-4">
-              <div class="card card-stat bg-primary text-white">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <h5 class="card-title">Total Users</h5>
-                      <h2 class="mb-0">${userCount}</h2>
-                    </div>
-                    <i class="fas fa-users fa-3x opacity-50"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card card-stat bg-success text-white">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <h5 class="card-title">Active Tasks</h5>
-                      <h2 class="mb-0">${taskActive}</h2>
-                    </div>
-                    <i class="fas fa-tasks fa-3x opacity-50"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card card-stat bg-info text-white">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <h5 class="card-title">Completed Tasks</h5>
-                      <h2 class="mb-0">${taskCompleted}</h2>
-                    </div>
-                    <i class="fas fa-check-circle fa-3x opacity-50"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Tasks -->
-          <div class="card mb-4">
-            <div class="card-header">
-              <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                  <i class="fas fa-history me-2"></i>Recent Tasks
-                </h5>
-                <a
-                  href="${pageContext.request.contextPath}/task/new"
-                  class="btn btn-sm btn-primary"
-                >
-                  <i class="fas fa-plus"></i> New Task
-                </a>
-              </div>
-            </div>
+          <div class="card">
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-hover">
-                  <thead>
+                  <thead class="table-light">
                     <tr>
                       <th>ID</th>
                       <th>Title</th>
+                      <th>Description</th>
                       <th>Assigned To</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <c:forEach var="task" items="${task}">
+                    <c:forEach var="task" items="${tasks}">
                       <tr>
                         <td>${task.id}</td>
                         <td>${task.title}</td>
+                        <td>${task.description}</td>
                         <td>
                           <c:forEach var="user" items="${listUser}">
                             <c:if test="${user.id == task.assignedTo}">
@@ -192,13 +133,15 @@ prefix="c" %>
                         <td>
                           <a
                             href="${pageContext.request.contextPath}/task/edit?id=${task.id}"
-                            class="btn btn-sm btn-outline-primary"
+                            class="btn btn-sm btn-outline-primary action-btn"
+                            title="Edit"
                           >
                             <i class="fas fa-edit"></i>
                           </a>
                           <a
                             href="${pageContext.request.contextPath}/task/delete?id=${task.id}"
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-sm btn-outline-danger action-btn"
+                            title="Delete"
                             onclick="return confirm('Are you sure?')"
                           >
                             <i class="fas fa-trash"></i>
